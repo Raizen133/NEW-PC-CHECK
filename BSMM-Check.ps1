@@ -45,33 +45,21 @@ $script:Palette = @{
     Ink    = @{ Hex = '#0E0E14'; Fallback = 'Black' }
 }
 
-$script:Report = @{
-    LiveUpdateSeconds = 120
-}
-
 $script:Policy = @{
-    MaxUptimeMinutes       = 0
-    RequireSecureBoot      = $false
-    RequireDriverBlocklist = $false
-    RequireMemoryIntegrity = $false
-    DeepHistory            = $true
+    MaxUptimeMinutes       = 0        # e.g. 10 = warn if the PC was not restarted shortly before the check. 0 = off
+    RequireSecureBoot      = $false   # $true = Secure Boot off is a FAIL (blocks boot-level cheats; ~95% of gaming PCs have it)
+    RequireDriverBlocklist = $false   # $true = Vulnerable Driver Blocklist off is a FAIL (blocks the usual kernel-cheat loader)
+    RequireMemoryIntegrity = $false   # $true = Memory Integrity (HVCI) off is a FAIL (strongest; can cost a few % FPS)
+    DeepHistory            = $true    # read Amcache + SRUM through a temporary shadow copy (~30 days of history, adds ~10-30 s)
 }
 
-$script:Session = $null
-try { $script:Session = $global:BsmmSession } catch {}
-Microsoft.PowerShell.Utility\Remove-Variable -Name BsmmSession -Scope Global -Force -ErrorAction SilentlyContinue
-if (-not ($script:Session -is [hashtable]) -or
-    [string]$script:Session.Id -cnotmatch '^BSMM-[2-9A-HJ-NP-Z]{8}$' -or
-    [string]$script:Session.Key -cnotmatch '^[0-9a-f]{64}$' -or
-    [string]$script:Session.Relay -notmatch 'https://discord.com/api/webhooks/1572644304327942238/emGxmv6FLt9Tk24JSYnRsiulw17o17sJW6n44fCMmKTOLGZtR0q1PPxXoCHG5t-yMFJu' -or
-    [string]$script:Session.Mode -ne 'check') {
-    Microsoft.PowerShell.Utility\Write-Host ''
-    Microsoft.PowerShell.Utility\Write-Host '  This check only runs with a one-time code from BSMM staff.' -ForegroundColor Yellow
-    Microsoft.PowerShell.Utility\Write-Host '  Ask staff for a new code, run the command again and enter it.' -ForegroundColor Yellow
-    Microsoft.PowerShell.Utility\Write-Host ''
-    return
+# --- Trust score (starts at 100, these are subtracted) ------------------------
+$script:TrustWeights = @{
+    FailSection = 18; FailCap = 60     # per check that FAILED, up to the cap
+    WarnSection = 4;  WarnCap = 28     # per check with warnings, up to the cap
+    NotAdmin    = 10                   # checks could not run fully
+    LiveFail    = 10; LiveWarn = 3; LiveCap = 40   # alerts raised during the live monitor
 }
-
 $script:BsmmVersion = $script:Brand.Version
 $script:ReportId = [string]$script:Session.Id
 $script:MonitorLog = New-Object System.Collections.Generic.List[string]
