@@ -45,6 +45,18 @@ $script:Palette = @{
     Ink    = @{ Hex = '#0E0E14'; Fallback = 'Black' }
 }
 
+# --- Discord report ----------------------------------------------------------
+# Reports go to your BSMM relay (relay/worker.js on Cloudflare), which forwards them to Discord.
+# The Discord webhook is stored only on the relay, so this script is safe to publish.
+# User names, the PC name and URL tokens are stripped before anything is sent.
+$script:Report = @{
+    RelayUrl          = 'https://discord.com/api/webhooks/1572644304327942238/emGxmv6FLt9Tk24JSYnRsiulw17o17sJW6n44fCMmKTOLGZtR0q1PPxXoCHG5t-yMFJu'    # Direct Discord webhook
+    AskPlayerName     = $true    # ask for the player's Roblox username at the start (shown on screen and in the report)
+    LiveUpdateSeconds = 120      # how often the live-monitor message is refreshed (keep >= 60 for Discord rate limits)
+    AttachFullLog     = $true    # attach the full anonymised log as a .txt file
+}
+
+# --- League policy -----------------------------------------------------------
 $script:Policy = @{
     MaxUptimeMinutes       = 0        # e.g. 10 = warn if the PC was not restarted shortly before the check. 0 = off
     RequireSecureBoot      = $false   # $true = Secure Boot off is a FAIL (blocks boot-level cheats; ~95% of gaming PCs have it)
@@ -60,6 +72,7 @@ $script:TrustWeights = @{
     NotAdmin    = 10                   # checks could not run fully
     LiveFail    = 10; LiveWarn = 3; LiveCap = 40   # alerts raised during the live monitor
 }
+
 $script:BsmmVersion = $script:Brand.Version
 $script:ReportId = [string]$script:Session.Id
 $script:MonitorLog = New-Object System.Collections.Generic.List[string]
